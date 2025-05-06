@@ -1,0 +1,102 @@
+---
+title: "assignment 8"
+
+format:
+
+  html:
+
+    embed-resources: true     
+
+    self-contained-math: true
+---
+
+# Enhancing the clarity and effectiveness of a badly constructed bar chart.
+
+## Ineffective bar chart representation.
+
+This chart definitely catches attention, but not in a positive way. It attempts to present several pieces of information at once, but the result is more confusing than informative.
+
+![](images/Zrzut ekranu 2025-05-7 o 00.24.01.png){width="492"}
+
+To address these issues, I created R code that produces clear, well-structured plots, where each variable is visualized appropriately, making the data much easier to understand.
+
+## Correct version of chart
+
+At the beginning, I load the necessary libraries:
+
+-   `ggplot2` – for creating plots.
+
+-   `gridExtra` – for combining multiple plots into a single layout (e.g., side by side).
+
+```{r}
+library(ggplot2)
+library(gridExtra)
+```
+
+Then, I created a data frame that contains the data.
+
+```{r}
+data <- data.frame(
+  Year = c(2020, 2021, 2022, 2023),
+  Average_Price = c(900000, 1025000, 1330000, 1080000),
+  Number_of_Houses_Sold = c(7193, 10929, 9028, 4783)
+)
+```
+
+I converted the prices to millions by dividing all values in `Average_Price` by 1,000,000, so the plot displays prices in millions of CAD.
+
+```{r}
+data$Average_Price <- data$Average_Price / 1e6
+```
+
+I assigned specific pastel colors to each year to ensure consistent and visually appealing styling.
+
+```{r}
+custom_colors <- c(
+  "2020" = "#A2C4C9",  
+  "2021" = "#C9AED6", 
+  "2022" = "#F4A7B9", 
+  "2023" = "#F9CB9C"  
+)
+```
+
+I created the plot `p1:` **Average House Price** using the following elements:
+
+-   `aes(...)` – sets the X-axis to `Year`, the Y-axis to `Price`, and fills the bars with colors based on the year.
+
+-   `geom_bar(stat = "identity")` creates bar heights based directly on the values provided in the data. By setting `stat = "identity"`, you're telling `ggplot2` to use the actual Y values from the data set instead of computing counts or other summaries.
+
+-   `scale_fill_manual(values = custom_colors)` – applies the custom colors that were defined earlier.
+
+-   `theme(legend.position = "none")` – removes the legend since the year is already displayed on the X-axis.
+
+```{r}
+p1 <- ggplot(data, aes(x = factor(Year), y = Average_Price, fill = factor(Year))) +
+  geom_bar(stat = "identity") + 
+  scale_fill_manual(values = custom_colors) +
+  ggtitle("Average House Price") +
+  xlab("Year") +
+  ylab("Price (Millions of CAD)") +
+  theme_light(base_size = 14) +
+  theme(legend.position = "none")
+```
+
+Then, I created the second plot, `p2:` **Number of Houses Sold**, in the same way as for the average price.
+
+```{r}
+p2 <- ggplot(data, aes(x = factor(Year), y = Number_of_Houses_Sold, fill = factor(Year))) +
+  geom_bar(stat = "identity") +
+  scale_fill_manual(values = custom_colors) +
+  ggtitle("Number of Houses Sold") +
+  xlab("Year") +
+  ylab("Count") +
+  theme_light(base_size = 14) +
+  theme(legend.position = "none")
+
+```
+
+At the end, I displayed the two plots side by side.
+
+```{r}
+grid.arrange(p1, p2, ncol = 2)
+```
